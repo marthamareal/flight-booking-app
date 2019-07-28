@@ -2,6 +2,8 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 
+from utils.base.model import BaseModel
+
 
 class UserManager(BaseUserManager):
 
@@ -23,11 +25,13 @@ class UserManager(BaseUserManager):
         return self._validated_user(email, password, **kwargs)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(max_length=30, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
+    first_name = models.CharField(max_length=100, null=True)
+    image_url = models.CharField(max_length=255, blank=True, null=True)
+    last_name = models.CharField(max_length=100, null=True)
+    phone = models.CharField(max_length=30, null=True)
 
     USERNAME_FIELD = 'email'
 
