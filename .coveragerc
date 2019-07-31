@@ -1,0 +1,4 @@
+[report]
+omit = /manage.py
+[html]
+directory = htmlcov
