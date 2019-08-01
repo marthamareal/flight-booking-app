@@ -1,9 +1,10 @@
 #### FLIGHT BOOKING API
-
+[![Build Status](https://travis-ci.org/marthamareal/flight-booking-app.svg?branch=develop)](https://travis-ci.org/marthamareal/flight-booking-app)
+[![Coverage Status](https://coveralls.io/repos/github/marthamareal/flight-booking-app/badge.svg?branch=develop)](https://coveralls.io/github/marthamareal/flight-booking-app?branch=develop)
 #### Setup
 Before you start, make sure you have the following installed on your machine.
 - [PostgreSQL](https://www.postgresql.org/)
-- [Pyenv](https://pypi.org/project/pyenv/)
+- [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv)
 
 Clone the repository with:
 ```
@@ -37,4 +38,10 @@ Apply migrations and run the server:
 ```
 $ python manage.py migrate
 $ python manage.py runserver
+```
+Testing the application
+```
+$ python manage.py test
+# with coverage
+$ coverage run --source='.' ./manage.py test && coverage report && coverage html
 ```
