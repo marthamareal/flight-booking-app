@@ -31,12 +31,15 @@ class UserLoginView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = LoginSerializer
 
-    def post(self, request, *args, **kwargs):
-        # import pdb; pdb.set_trace()
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response = {
+            "id": serializer.data['id'],
+            "email": serializer.data['email'],
+            "message": "You have successfully logged in."
+        }
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class SingleUserView(generics.RetrieveUpdateDestroyAPIView):

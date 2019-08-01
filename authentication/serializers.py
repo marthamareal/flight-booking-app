@@ -110,29 +110,23 @@ class UserSerializer(BaseUserSerializer):
 
 class LoginSerializer(BaseUserSerializer):
     email = serializers.CharField(max_length=255, required=True)
-    password = serializers.CharField(max_length=128, required=True)
+    password = serializers.CharField(max_length=128, write_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name',
-                  'phone', 'image_url', 'created_at', 'updated_at')
+        fields = ('id', 'email', 'password')
 
         read_only_fields = 'id',
 
     def validate(self, data):
         email = data.get('email', None)
         password = data.get('password', None)
-        print(data)
 
         user = authenticate(username=email, password=password)
 
         if user is None:
             raise serializers.ValidationError(
-                'Invalid login in details, Please make sure your account is activated'
+                'Invalid login in details, Please make sure your email and password are correct'
             )
 
-        return {
-            "username": user.username,
-            "email": user.email,
-            "message": "You have successfully logged in."
-        }
+        return user
