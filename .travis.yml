@@ -2,10 +2,16 @@ language: python
 python:
   - "3.6"
 
+services:
+    - postgresql
+
 install:
   - pip3 install -r requirements.txt
   - pip3 install coverage
   - pip3 install coveralls
+
+before_script:
+    - psql -c 'CREATE DATABASE test_db;' -U postgres
 
 script:
   - coverage run --source='.' ./manage.py test
