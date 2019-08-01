@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.contrib.auth import authenticate
+
 from authentication.models import User
 from utils.error_messages import error_messages
 from utils.regex import patterns
@@ -37,7 +39,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
                               error_messages['invalid_password'])
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(BaseUserSerializer):
     """User model serializer"""
     password = serializers.CharField(min_length=8, write_only=True)
 
@@ -104,3 +106,33 @@ class UserSerializer(serializers.ModelSerializer):
         user = super().update(instance, validated_data)
         user.save()
         return user
+
+
+class LoginSerializer(BaseUserSerializer):
+    email = serializers.CharField(max_length=255, required=True)
+    password = serializers.CharField(max_length=128, required=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'first_name', 'last_name',
+                  'phone', 'image_url', 'created_at', 'updated_at')
+
+        read_only_fields = 'id',
+
+    def validate(self, data):
+        email = data.get('email', None)
+        password = data.get('password', None)
+        print(data)
+
+        user = authenticate(username=email, password=password)
+
+        if user is None:
+            raise serializers.ValidationError(
+                'Invalid login in details, Please make sure your account is activated'
+            )
+
+        return {
+            "username": user.username,
+            "email": user.email,
+            "message": "You have successfully logged in."
+        }
