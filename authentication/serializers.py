@@ -101,7 +101,7 @@ class UserSerializer(BaseUserSerializer):
             instance(object): User object updated
             validated_data(dict): a dictionary of validated data of a user to update
         Returns:
-            user(object): Risk type object updated
+            user(object): User object updated
         """
         user = super().update(instance, validated_data)
         user.save()
