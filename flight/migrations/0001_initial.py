@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('destination', models.CharField(max_length=100)),
                 ('departure_time', models.DateTimeField()),
                 ('arrival_time', models.DateTimeField()),
-                ('flight_number', models.CharField(max_length=100, unique=True)),
+                ('number', models.CharField(max_length=100, unique=True)),
                 ('status', models.CharField(choices=[('ACTIVE', 'active'), ('CLOSED', 'closed')], max_length=10)),
             ],
             options={
