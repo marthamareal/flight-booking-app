@@ -1,14 +1,15 @@
 import random
 
-from rest_framework import generics, status
+from rest_framework import generics, status, mixins
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from flight.serializers import FlightSerializer
 from flight.models import Flight, Seat
 
 
-class FlightView(generics.ListCreateAPIView):
+class FlightCreateView(mixins.CreateModelMixin, GenericAPIView):
     """ Generic view for creating and listing all flights """
     permission_classes = (IsAuthenticated,)
     queryset = Flight.objects.filter().all()
@@ -39,6 +40,17 @@ class FlightView(generics.ListCreateAPIView):
             number = self.get_number(provider)
 
         return number
+
+
+class FlightListView(mixins.ListModelMixin, GenericAPIView):
+    """ Generic view for creating and listing all flights """
+    permission_classes = (AllowAny,)
+    queryset = Flight.objects.filter().all()
+    serializer_class = FlightSerializer
+    model_name = 'Flight'
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
 
 class SingleFlightView(generics.RetrieveUpdateDestroyAPIView):
