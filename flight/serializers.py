@@ -5,17 +5,24 @@ from rest_framework import serializers
 from flight.models import Flight, Seat
 
 
-class SeatSerializer(serializers.ModelSerializer):
+class SeatSerializer(serializers.RelatedField):
     """Flight model serializer"""
-    class Meta:
-        model = Seat
-        fields = 'seat_number',
+
+    def to_internal_value(self, data):
+        pass
+
+    def get_queryset(self):
+        return Seat.objects.all()
+
+    def to_representation(self, value):
+        return value.seat_number
 
 
 class FlightSerializer(serializers.ModelSerializer):
     """Flight model serializer"""
     seats = SeatSerializer(many=True, required=True)
-    number =  serializers.CharField(required=False)
+    number = serializers.CharField(required=False)
+
     class Meta:
         model = Flight
         fields = ('id', 'provider', 'number', 'origin', 'destination',
@@ -25,14 +32,20 @@ class FlightSerializer(serializers.ModelSerializer):
         read_only_fields = 'id',
 
     def create(self, data):
-        seats = data.pop('seats')
+        provider = data.get('provider')
+        data['number'] = self.get_number(provider)
+        request = self.context.get('request')
+        del data['seats']  # Recheck this
+        seats = request.data.get('seats')
         flight = Flight.objects.create(**data)
-        for seat in seats:
+        for seat_number in seats:
             try:
-                seat = Seat.objects.get(seat_number=seat.strip())
-                flight.seats.add(seat.id)
+                seat = Seat.objects.get(seat_number=seat_number)
+                if seat:
+                    flight.seats.add(seat.id)
             except Seat.DoesNotExist:
-                flight.seats.create(seat_number=seat.strip())
+                seat = Seat.objects.create(seat_number=seat_number)
+                flight.seats.add(seat.id)
 
         return flight
 
@@ -48,3 +61,13 @@ class FlightSerializer(serializers.ModelSerializer):
         flight = super().update(instance, validated_data)
         flight.save()
         return flight
+
+    def get_number(self, provider):
+        # import pdb; pdb.set_trace()
+        letters = [word[0] for word in provider.split()]
+        initial = "".join(letters)
+        number = '{}{}'.format(initial, random.randint(100, 999))
+        if Flight.objects.filter(number=number).exists():
+            number = self.get_number(provider)
+
+        return number.upper()

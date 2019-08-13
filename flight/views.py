@@ -1,12 +1,12 @@
 import random
 
-from rest_framework import generics, status, mixins
+from rest_framework import generics, mixins
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from flight.serializers import FlightSerializer
-from flight.models import Flight, Seat
+from flight.models import Flight
 
 
 class FlightCreateView(mixins.CreateModelMixin, GenericAPIView):
@@ -22,24 +22,16 @@ class FlightCreateView(mixins.CreateModelMixin, GenericAPIView):
             raise PermissionDenied(
                 "You don't have permissions to create a flight."
             )
-        request.data['number'] = self.get_number(request.data['provider'])
-
         return super().create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        number = self.get_number(serializer)
-        serializer.save(number=number)
-
     def get_number(self, provider):
-        print(provider)
-        provider = provider
-        letters = [word[0] for word in provider]
+        letters = [word[0] for word in provider.split()]
         initial = "".join(letters)
         number = '{}{}'.format(initial, random.randint(100, 999))
         if Flight.objects.filter(number=number).exists():
             number = self.get_number(provider)
 
-        return number
+        return number.upper()
 
 
 class FlightListView(mixins.ListModelMixin, GenericAPIView):
