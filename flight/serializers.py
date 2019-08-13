@@ -58,8 +58,23 @@ class FlightSerializer(serializers.ModelSerializer):
         Returns:
             flight(object): Flight object updated
         """
+        del validated_data['seats']  # Recheck this
+        request = self.context.get('request')
+        seats = request.data.get('seats')
         flight = super().update(instance, validated_data)
-        flight.save()
+        if seats:
+            for seat_number in seats:
+                if Flight.objects.filter(seats__seat_number=seat_number):
+                    continue
+                else:
+                    try:
+                        seat = Seat.objects.get(seat_number=seat_number)
+                        if seat:
+                            flight.seats.add(seat.id)
+                    except Seat.DoesNotExist:
+                        seat = Seat.objects.create(seat_number=seat_number)
+                        flight.seats.add(seat.id)
+
         return flight
 
     def get_number(self, provider):
