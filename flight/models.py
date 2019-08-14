@@ -2,6 +2,8 @@ from django.db import models
 
 from utils.base.model import BaseModel
 
+from flight_booking import settings
+
 STATUSES = (
     ("active", "active"),
     ("closed", "closed")
@@ -35,3 +37,15 @@ class Seat(BaseModel):
 
     seat_number = models.CharField(max_length=10)
 
+
+class Booking(BaseModel):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="bookings",
+        on_delete=models.CASCADE
+    )
+    flight = models.ForeignKey(
+        Flight, related_name="bookings", on_delete=models.CASCADE
+    )
+    seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=10, choices=STATUSES, default=STATUSES[0][0])

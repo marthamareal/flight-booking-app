@@ -1,8 +1,9 @@
 import random
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from flight.models import Flight, Seat
+from flight.models import Flight, Seat, Booking
 
 
 class SeatSerializer(serializers.RelatedField):
@@ -78,7 +79,6 @@ class FlightSerializer(serializers.ModelSerializer):
         return flight
 
     def get_number(self, provider):
-        # import pdb; pdb.set_trace()
         letters = [word[0] for word in provider.split()]
         initial = "".join(letters)
         number = '{}{}'.format(initial, random.randint(100, 999))
@@ -86,3 +86,16 @@ class FlightSerializer(serializers.ModelSerializer):
             number = self.get_number(provider)
 
         return number.upper()
+
+class BookingSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField()
+    flight = serializers.ReadOnlyField()
+    seat =  SeatSerializer(required=True)
+    class Meta:
+        model = Booking
+        fields = 'flight', 'seat', 'user'
+
+    def create(self, data):
+        import pdb; pdb.set_trace()
+        return data
+
