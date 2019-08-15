@@ -3,6 +3,7 @@ import random
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from authentication.models import User
 from flight.models import Flight, Seat, Booking
 
 
@@ -87,15 +88,41 @@ class FlightSerializer(serializers.ModelSerializer):
 
         return number.upper()
 
+
 class BookingSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField()
-    flight = serializers.ReadOnlyField()
-    seat =  SeatSerializer(required=True)
+
+    user = serializers.UUIDField(required=True)
+    flight = serializers.UUIDField(required=True)
+    seat = SeatSerializer(required=True)
+
     class Meta:
         model = Booking
-        fields = 'flight', 'seat', 'user'
+        fields = ['flight', 'seat', 'user']
 
-    def create(self, data):
-        import pdb; pdb.set_trace()
-        return data
+    def create(self, validated_data):
+        return Booking.objects.create(**validated_data)
 
+    def validate(self, attrs):
+        try:
+            seat = self.context.get('seat')
+            user = User.objects.get(pk=attrs.get('user'))
+            flight = Flight.objects.get(pk=attrs.get("flight"))
+            seat = flight.seats.get(seat_number=seat)
+            if Booking.objects.filter(flight=flight.id, seat=seat.id):
+                raise serializers.ValidationError(
+                    "This seat is already taken")
+            return {
+                "user": user,
+                "flight": flight,
+                "seat": seat
+            }
+        except Flight.DoesNotExist:
+            raise ValidationError(
+                "Flight does not exist")
+
+        except Seat.DoesNotExist:
+            raise serializers.ValidationError(
+                "Seat does not exist")
+
+    def update(self, instance, validated_data):
+        return super().update(instance, **validated_data)

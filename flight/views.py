@@ -1,12 +1,14 @@
 import random
 
 from rest_framework import generics, mixins, status
-from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from flight.serializers import FlightSerializer, BookingSerializer
-from flight.models import Flight, Booking, Seat
+from flight.models import Flight
 
 
 class FlightCreateView(mixins.CreateModelMixin, GenericAPIView):
@@ -52,29 +54,26 @@ class SingleFlightView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FlightSerializer
     model_name = 'Flight'
 
-class BookFlightView(generics.ListCreateAPIView):
-    """ Generic view for booking a flight """
+
+class BookFlightView(APIView):
     permission_classes = IsAuthenticated,
     serializer_class = BookingSerializer
 
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return Booking.objects.all()
-        return Booking.objects.filter(user=self.request.user)
+    def post(self, request, flight):
+        request.data["user"] = request.user.id
+        request.data["flight"] = flight
+        context = {
+            "seat": request.data.get('seat')
+        }
+        serializer = self.serializer_class(data=request.data, context=context)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def perform_create(self, serializer):
-        try:
-            flight = Flight.objects.get(pk=self.kwargs.get("pk"))
-            seat = flight.seats.get(seat_number=serializer.data.get("seat"))
-            if Booking.objects.filter(flight=flight.id, seat=seat.id):
-                raise ValidationError(
-                    "This seat is already taken")
-            serializer.save(user=self.request.user, flight=flight)
 
-        except Flight.DoesNotExist:
-            raise ValidationError(
-                "Flight does not exist")
+class CancelBooking(mixins.UpdateModelMixin, GenericAPIView):
+    permission_classes = IsAuthenticated,
+    serializer_class = BookingSerializer
 
-        except Seat.DoesNotExist:
-            raise ValidationError(
-                "Seat does not exist")
+    def perform_update(self, serializer):
+        serializer.save(status='closed')
