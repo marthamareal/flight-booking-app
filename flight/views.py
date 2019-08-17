@@ -3,9 +3,11 @@ import random
 from rest_framework import generics, mixins, status
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from django.db.models import Q
 
 from flight.serializers import FlightSerializer, BookingSerializer
 from flight.models import Flight, Booking
@@ -103,3 +105,25 @@ class CancelBooking(APIView):
         return Response({
             "message": "You have successfully canceled your booking for flight {0}".format(booking.flight)
         }, status=status.HTTP_200_OK)
+
+
+class GetFlightBookings(APIView):
+    permission_classes = IsAuthenticated,
+
+    def get(self,  request, flight, date):
+        if not request.user.is_superuser:
+            raise PermissionDenied(
+                "You don't have permissions to this request."
+            )
+        active_bookings = Booking.objects.filter(
+            Q(flight_id=flight, status='active') & Q(created_at__date=date)
+        )
+        closed_bookings = Booking.objects.filter(
+            Q(flight_id=flight, status='closed') & Q(created_at__date=date)
+        )
+        booking_content = {
+            "active": active_bookings.count(),
+            "closed": closed_bookings.count(),
+            "total": active_bookings.count() + closed_bookings.count()
+        }
+        return Response({"bookings": booking_content}, status=status.HTTP_200_OK)
