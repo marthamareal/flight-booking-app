@@ -1,14 +1,14 @@
 import random
 
 from rest_framework import generics, mixins, status
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from flight.serializers import FlightSerializer, BookingSerializer
-from flight.models import Flight
+from flight.models import Flight, Booking
 
 
 class FlightCreateView(mixins.CreateModelMixin, GenericAPIView):
@@ -68,12 +68,38 @@ class BookFlightView(APIView):
         serializer = self.serializer_class(data=request.data, context=context)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({
+            "message": "You have successfully booked flight {0}".format(serializer.data.get('flight'))
+        }, status=status.HTTP_201_CREATED)
 
 
-class CancelBooking(mixins.UpdateModelMixin, GenericAPIView):
+class CancelBooking(APIView):
     permission_classes = IsAuthenticated,
     serializer_class = BookingSerializer
 
-    def perform_update(self, serializer):
-        serializer.save(status='closed')
+    def get_booking(self, pk):
+        try:
+            return Booking.objects.get(pk=pk)
+        except Booking.DoesNotExist:
+            raise ValidationError(
+                "Booking does not exist")
+
+    def put(self,  request, booking):
+        booking = self.get_booking(booking)
+        request.data["user"] = request.user.id
+        request.data["flight"] = booking.flight.id
+        request.data["seat"] = booking.seat
+        if request.user != booking.user and not request.user.is_superuser:
+            raise ValidationError("Impostor, You can not cancel a booking that does not belong to you")
+        if booking.status == 'closed':
+            raise ValidationError('You already canceled this booking')
+        context = {
+            "request": self.request
+        }
+        serializer = self.serializer_class(data=request.data, context=context, partial=True)
+        serializer.instance = booking
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({
+            "message": "You have successfully canceled your booking for flight {0}".format(booking.flight)
+        }, status=status.HTTP_200_OK)
