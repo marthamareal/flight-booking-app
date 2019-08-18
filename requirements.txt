@@ -1,3 +1,4 @@
+PyJWT
 mock
 coverage==4.5.4
 Django==2.2.2

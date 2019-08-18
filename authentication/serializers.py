@@ -114,7 +114,7 @@ class LoginSerializer(BaseUserSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'password')
+        fields = ('id', 'email', 'password', 'token')
 
         read_only_fields = 'id',
 
