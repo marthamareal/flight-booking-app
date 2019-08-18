@@ -67,7 +67,8 @@ class FlightSerializer(serializers.ModelSerializer):
         flight = super().update(instance, validated_data)
         if seats:
             for seat_number in seats:
-                if Flight.objects.filter(seats__seat_number=seat_number):
+                if Flight.objects.filter(
+                        id=instance.id, seats__seat_number=seat_number):
                     continue
                 else:
                     try:
