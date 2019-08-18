@@ -93,6 +93,13 @@ AUTHENTICATION_BACKENDS = (
 
 AUTH_USER_MODEL = 'authentication.User'
 
+REST_FRAMEWORK = {
+    "NON_FIELD_ERRORS_KEY": "error",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'authentication.backend.JWTAuthentication',
+    ),
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 

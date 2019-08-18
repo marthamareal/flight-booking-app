@@ -1,7 +1,11 @@
+from datetime import datetime, timedelta
+
+import jwt
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 
+from flight_booking.settings import SECRET_KEY
 from utils.base.model import BaseModel
 
 
@@ -36,3 +40,12 @@ class User(BaseModel, AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
     objects = UserManager()
+
+    @property
+    def token(self):
+        payload = {
+            "id": str(self.id),
+            "first_name": self.first_name,
+            "exp": datetime.now() + timedelta(days=1)
+        }
+        return jwt.encode(payload, SECRET_KEY)
