@@ -14,7 +14,7 @@ SUBJECT = "Flight Reminder"
 
 
 @periodic_task(
-    run_every=crontab(),
+    run_every=crontab(minute="*/1"),
     name="flight_reminder",
     max_retries=5,
     ignore_result=False,
