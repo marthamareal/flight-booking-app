@@ -25,7 +25,7 @@ class TestLogin(TestCase):
     def test_login_with_invalid_data_fails(self):
         data = {
             "email": self.user.email,
-            "password": "wron123334"
+            "password": "wrong123334"
         }
         response = self.client.post(reverse('login'), data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
