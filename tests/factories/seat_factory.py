@@ -10,4 +10,4 @@ class SeatFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Seat
 
-    seat_number = factory.LazyAttribute(lambda _: faker.text(9))
+    seat_number = factory.LazyAttribute(lambda _: faker.text()[:10])

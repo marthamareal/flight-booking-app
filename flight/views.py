@@ -72,7 +72,7 @@ class BookFlightView(APIView):
         serializer.save()
         return Response({
             "message": "You have successfully booked flight {0}".format(serializer.data.get('flight'))
-        }, status=status.HTTP_201_CREATED)
+        }, status=status.HTTP_200_OK)
 
 
 class CancelBooking(APIView):
