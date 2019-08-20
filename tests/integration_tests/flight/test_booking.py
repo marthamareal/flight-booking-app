@@ -10,9 +10,7 @@ class TestFlightBooking(BaseTestFlight):
     """Class for testing """
 
     def test_book_flight_succeeds(self):
-        pass
-        # seat = SeatFactory()
-        # flight = FlightFactory()
-        # response = self.client.post(reverse('book_flight'), flight=flight.id)
-        # print(response.data)
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
+        seat = SeatFactory()
+        flight = FlightFactory(seats=[seat])
+        response = self.client.post(reverse('book_flight', kwargs={'flight': flight.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
