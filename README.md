@@ -45,3 +45,92 @@ $ python manage.py test
 # with coverage
 $ coverage run --source='.' ./manage.py test && coverage report && coverage html
 ```
+
+Endpoints:
+----------
+
+### Authentication:
+
+`POST /api/auth/users/login/`
+
+Example request body:
+
+```source-json
+{
+    "email": "jake@jake.com",
+    "password": "jakejake"
+}
+```
+
+No authentication required, returns a User
+
+Required fields: `email`, `password`
+
+### Registration:
+
+`POST /api/auth/users/`
+
+Example request body:
+
+```source-json
+{
+    "email": "jake@jake.jake",
+    "password": "jakejake",
+    "first_name": "jake",
+    "last_name": "jake",
+    "phone": "+256-789-889-979"
+}
+```
+
+No authentication required, returns a User
+
+Required fields: `email`,  `password`
+
+### Create Flight
+
+`POST /api/flights/create/`
+
+Example request body:
+
+```source-json
+{
+    "provider": "Kenya airwqs",
+    "origin": "ebb",
+    "destination": "jkia",
+    "arrival_time": "2012-09-04T21:00:00Z",
+    "departure_time": "2012-09-04T18:00:00Z",
+    "seats": ["2A", "2B"]
+}
+```
+Authentication required (must be admin)
+
+### Get Flights
+
+`GET /api/flights`
+
+Authentication required, returns a list of Flights
+
+### Book a Flight
+`POST api/flights/booking/:flight/`
+
+Example request body:
+
+```source-json
+{
+    "seat": "2A"
+}
+```
+Authentication required
+
+field seat is optional, if not provided, a seat is assigned to you automatically
+
+### Cancel Booking
+`PUT api/flights/booking/:booking/cancel/`
+
+Authentication required
+
+### Get bookings on a given date
+`PUT api/flights/booking/:flight/:date/`
+
+Authentication required
+
