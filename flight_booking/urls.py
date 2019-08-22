@@ -21,6 +21,6 @@ urlpatterns = [
     path('api/admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
     path('api/', include('flight.urls')),
-    path('api/', include_docs_urls(title="Flight Booking Application",
+    path('docs', include_docs_urls(title="Flight Booking Application",
                                       description="An application that enables users to book flights")),
 ]
