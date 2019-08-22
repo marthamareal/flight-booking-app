@@ -134,3 +134,7 @@ Authentication required
 
 Authentication required
 
+#### Upload Passport photo
+`PUT api/auth/users/passport/upload/`
+
+Authentication required
