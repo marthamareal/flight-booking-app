@@ -49,7 +49,7 @@ $ coverage run --source='.' ./manage.py test && coverage report && coverage html
 Endpoints:
 ----------
 
-### Authentication:
+#### Authentication:
 
 `POST /api/auth/users/login/`
 
@@ -66,7 +66,7 @@ No authentication required, returns a User
 
 Required fields: `email`, `password`
 
-### Registration:
+#### Registration:
 
 `POST /api/auth/users/`
 
@@ -86,7 +86,7 @@ No authentication required, returns a User
 
 Required fields: `email`,  `password`
 
-### Create Flight
+#### Create Flight
 
 `POST /api/flights/create/`
 
@@ -104,13 +104,13 @@ Example request body:
 ```
 Authentication required (must be admin)
 
-### Get Flights
+#### Get Flights
 
 `GET /api/flights`
 
 Authentication required, returns a list of Flights
 
-### Book a Flight
+#### Book a Flight
 `POST api/flights/booking/:flight/`
 
 Example request body:
@@ -124,12 +124,12 @@ Authentication required
 
 field seat is optional, if not provided, a seat is assigned to you automatically
 
-### Cancel Booking
+#### Cancel Booking
 `PUT api/flights/booking/:booking/cancel/`
 
 Authentication required
 
-### Get bookings on a given date
+#### Get bookings on a given date
 `PUT api/flights/booking/:flight/:date/`
 
 Authentication required
@@ -138,3 +138,9 @@ Authentication required
 `PUT api/auth/users/passport/upload/`
 
 Authentication required
+
+### Deployment
+
+The API is deployed using [Heroku](https://www.heroku.com/)
+
+Check out the deployed application [here](https://flight-booking-application.herokuapp.com/)
