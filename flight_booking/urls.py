@@ -15,9 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
     path('api/auth/', include('authentication.urls')),
     path('api/', include('flight.urls')),
+    path('api/', include_docs_urls(title="Flight Booking Application",
+                                      description="An application that enables users to book flights")),
 ]
