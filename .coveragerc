@@ -1,4 +1,6 @@
 [report]
-omit = /manage.py
+omit =
+    */manage.py*
+    */locustfile*
 [html]
 directory = htmlcov
