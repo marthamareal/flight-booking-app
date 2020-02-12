@@ -10,7 +10,7 @@ coreapi-cli==1.0.9
 coreschema==0.0.4
 coverage==4.5.4
 dj-config-url==0.1.1
-Django==2.2.2
+Django==2.2.10
 django-coreapi==2.3.0
 django-rest-swagger==2.2.0
 djangorestframework==3.9.4
